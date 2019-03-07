@@ -54,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
         setToggleListener(deathDateToggle, selectDeathDate, deathDate);
         setToggleListener(lifeLengthToggle, years, days);
 
+        selectBirthDate.setClickable(false);
+        selectDeathDate.setClickable(false);
+        years.setInputType(0);
+        days.setInputType(0);
+
 
         lifeLengthReset.setOnClickListener(new OnClickListener() {
             @Override
@@ -103,10 +108,10 @@ public class MainActivity extends AppCompatActivity {
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    b.setClickable(true);
+                } else {
                     b.setClickable(false);
                     tv.setText("");
-                } else {
-                    b.setClickable(true);
                 }
             }
         });
@@ -116,13 +121,14 @@ public class MainActivity extends AppCompatActivity {
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    years.setInputType(1002);
+                    days.setInputType(1002);
+
+                } else {
                     years.setInputType(0);
                     days.setInputType(0);
                     years.setText("");
                     days.setText("");
-                } else {
-                    years.setInputType(1002);
-                    days.setInputType(1002);
                 }
             }
         });
