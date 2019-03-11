@@ -1,6 +1,11 @@
 package com.kylemccaw.deathcalculator;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -20,9 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button selectBirthDate, selectDeathDate;
     TextView birthDate, deathDate;
     DatePickerDialog datePickerDialog;
-    int year;
-    int month;
-    int dayOfMonth;
+    int year, month, dayOfMonth, togglesActive;
     Calendar calendar;
     ImageButton birthDateReset, deathDateReset, lifeLengthReset;
     EditText years, days;
@@ -32,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        togglesActive = 0;
 
         selectBirthDate = findViewById(R.id.btnBirthDate);
         selectDeathDate = findViewById(R.id.btnDeathDate);
@@ -105,13 +110,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setToggleListener(ToggleButton tb, final Button b, final TextView tv){
+
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    if (togglesActive == 2){
+                        toggleDialog();
+                        return;
+                    }
                     b.setClickable(true);
+                    togglesActive++;
                 } else {
                     b.setClickable(false);
                     tv.setText("");
+                    togglesActive--;
                 }
             }
         });
@@ -121,17 +133,32 @@ public class MainActivity extends AppCompatActivity {
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    if (togglesActive == 2){
+                        toggleDialog();
+                        return;
+                    }
                     years.setInputType(1002);
                     days.setInputType(1002);
-
+                    togglesActive++;
                 } else {
                     years.setInputType(0);
                     days.setInputType(0);
                     years.setText("");
                     days.setText("");
+                    togglesActive--;
                 }
             }
         });
     }
+
+    public void toggleDialog(){
+        new AlertDialog.Builder(this)
+                .setTitle("You've exceeded your toggles!")
+                .setMessage("You can only select two fields.")
+                .setNegativeButton("Okay", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
 }
 
