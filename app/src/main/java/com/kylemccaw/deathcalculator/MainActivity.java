@@ -6,7 +6,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +20,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton birthDateReset, deathDateReset, lifeLengthReset;
     EditText years, days;
     ToggleButton birthDateToggle, deathDateToggle, lifeLengthToggle;
+    LocalDate birth, death;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         deathDateToggle = findViewById(R.id.deathDateToggle);
         lifeLengthToggle = findViewById(R.id.lifeLengthToggle);
 
-        setButtonListener(selectBirthDate, birthDate);
-        setButtonListener(selectDeathDate, deathDate);
+        setButtonListener(selectBirthDate, birthDate, true);
+        setButtonListener(selectDeathDate, deathDate, false);
         setResetListener(birthDateReset, birthDate);
         setResetListener(deathDateReset, deathDate);
         setToggleListener(birthDateToggle, selectBirthDate, birthDate);
@@ -76,7 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     // code guidance provided by GitHub user codingdemos
-    public void setButtonListener(Button b, final TextView tv){
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void setButtonListener(Button b, final TextView tv, boolean bOrD){
         b.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,6 +99,12 @@ public class MainActivity extends AppCompatActivity {
                 datePickerDialog.show();
             }
         });
+
+        if (bOrD){
+            birth = LocalDate.parse(tv.getText());
+        } else {
+            death = LocalDate.parse(tv.getText());
+        }
     }
 
     public void setResetListener(ImageButton ib, final TextView tv){
@@ -109,43 +123,43 @@ public class MainActivity extends AppCompatActivity {
         dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
     }
 
-    public void setToggleListener(ToggleButton tb, final Button b, final TextView tv){
+    public void setToggleListener(final ToggleButton tb, final Button b, final TextView tv){
 
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    if (togglesActive == 2){
-                        toggleDialog();
-                        return;
-                    }
-                    b.setClickable(true);
-                    togglesActive++;
-                } else {
+                if (togglesActive == 2){
+                    toggleDialog();
+                    tb.setChecked(false);
+                    return;
+                } else if (!isChecked) {
                     b.setClickable(false);
                     tv.setText("");
-                    togglesActive--;
+                    --togglesActive;
+                } else {
+                    b.setClickable(true);
+                    togglesActive++;
                 }
             }
         });
     }
 
-    public void setToggleListener(ToggleButton tb, final EditText years, final EditText days){
+    public void setToggleListener(final ToggleButton tb, final EditText years, final EditText days){
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    if (togglesActive == 2){
-                        toggleDialog();
-                        return;
-                    }
-                    years.setInputType(1002);
-                    days.setInputType(1002);
-                    togglesActive++;
-                } else {
+                if (togglesActive == 2){
+                    toggleDialog();
+                    tb.setChecked(false);
+                    return;
+                } else if (!isChecked) {
                     years.setInputType(0);
                     days.setInputType(0);
                     years.setText("");
                     days.setText("");
-                    togglesActive--;
+                    --togglesActive;
+                } else {
+                    years.setInputType(1002);
+                    days.setInputType(1002);
+                    togglesActive++;
                 }
             }
         });
@@ -158,6 +172,16 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("Okay", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void calculate(LocalDate birth, LocalDate death){
+        Duration difference = Duration.between(birth.atStartOfDay(), death.atStartOfDay());
+        long diffDays = difference.toDays();
+    }
+
+    public void calculate(String date, int years, int days, boolean bOrD){
+
     }
 
 }
