@@ -1,11 +1,7 @@
 package com.kylemccaw.deathcalculator;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -20,18 +16,23 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button selectBirthDate, selectDeathDate;
+    Button selectBirthDate, selectDeathDate, calcMissing;
     TextView birthDate, deathDate;
     DatePickerDialog datePickerDialog;
-    int year, month, dayOfMonth, togglesActive;
+    int year, month, dayOfMonth;
     Calendar calendar;
     ImageButton birthDateReset, deathDateReset, lifeLengthReset;
     EditText years, days;
@@ -42,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        togglesActive = 0;
 
         selectBirthDate = findViewById(R.id.btnBirthDate);
         selectDeathDate = findViewById(R.id.btnDeathDate);
@@ -57,9 +56,10 @@ public class MainActivity extends AppCompatActivity {
         birthDateToggle = findViewById(R.id.birthDateToggle);
         deathDateToggle = findViewById(R.id.deathDateToggle);
         lifeLengthToggle = findViewById(R.id.lifeLengthToggle);
+        calcMissing = findViewById(R.id.calcMissing);
 
-        setButtonListener(selectBirthDate, birthDate, true);
-        setButtonListener(selectDeathDate, deathDate, false);
+        setButtonListener(selectBirthDate, birthDate);
+        setButtonListener(selectDeathDate, deathDate);
         setResetListener(birthDateReset, birthDate);
         setResetListener(deathDateReset, deathDate);
         setToggleListener(birthDateToggle, selectBirthDate, birthDate);
@@ -74,17 +74,35 @@ public class MainActivity extends AppCompatActivity {
 
         lifeLengthReset.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick (View view){
-               years.setText("");
-               days.setText("");
+            public void onClick(View view) {
+                years.setText("");
+                days.setText("");
             }
         });
+
+//        calcMissing.setOnClickListener(new OnClickListener() {
+//            @RequiresApi(api = Build.VERSION_CODES.O)
+//            @Override
+//            public void onClick(View view) {
+//                if (birthDateToggle.isChecked() && deathDateToggle.isChecked()) {
+//                    // calculate lifeLength
+//                    birth = LocalDate.parse(parser((String) birthDate.getText()));
+//                    death = LocalDate.parse(parser((String) deathDate.getText()));
+//                    double yearLong = Math.floor(Duration.between(birth, death).toDays());
+//                    years.setText((int) (yearLong / 365));
+//                    days.setText((int) Math.floor(Duration.between(birth, death).toDays()));
+//                } else if (birthDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
+//                    // calculate deathDate
+//                } else if (deathDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
+//                    // calculate birthDate
+//                }
+//            }
+//        });
     }
 
 
     // code guidance provided by GitHub user codingdemos
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void setButtonListener(Button b, final TextView tv, boolean bOrD){
+    public void setButtonListener(Button b, final TextView tv) {
         b.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,73 +117,62 @@ public class MainActivity extends AppCompatActivity {
                 datePickerDialog.show();
             }
         });
-
-        if (bOrD){
-            birth = LocalDate.parse(tv.getText());
-        } else {
-            death = LocalDate.parse(tv.getText());
-        }
     }
 
-    public void setResetListener(ImageButton ib, final TextView tv){
+    public void setResetListener(ImageButton ib, final TextView tv) {
         ib.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick (View view){
+            public void onClick(View view) {
                 tv.setText("");
             }
         });
     }
 
-    public void resetCalendar(){
+    public void resetCalendar() {
         calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
         dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
     }
 
-    public void setToggleListener(final ToggleButton tb, final Button b, final TextView tv){
-
+    public void setToggleListener(final ToggleButton tb, final Button b, final TextView tv) {
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (togglesActive == 2){
+                if (threeToggled()) {
                     toggleDialog();
                     tb.setChecked(false);
                     return;
-                } else if (!isChecked) {
+                } else if (!tb.isChecked()) {
                     b.setClickable(false);
                     tv.setText("");
-                    --togglesActive;
-                } else {
+                } else if (tb.isChecked()) {
                     b.setClickable(true);
-                    togglesActive++;
                 }
             }
         });
     }
 
-    public void setToggleListener(final ToggleButton tb, final EditText years, final EditText days){
+    public void setToggleListener(final ToggleButton tb, final EditText years, final EditText days) {
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (togglesActive == 2){
+                if (threeToggled()) {
                     toggleDialog();
                     tb.setChecked(false);
                     return;
-                } else if (!isChecked) {
+                } else if (!tb.isChecked()) {
                     years.setInputType(0);
                     days.setInputType(0);
                     years.setText("");
                     days.setText("");
-                    --togglesActive;
-                } else {
+                } else if (tb.isChecked()) {
                     years.setInputType(1002);
                     days.setInputType(1002);
-                    togglesActive++;
                 }
             }
         });
     }
 
-    public void toggleDialog(){
+    public void toggleDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("You've exceeded your toggles!")
                 .setMessage("You can only select two fields.")
@@ -174,15 +181,31 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void calculate(LocalDate birth, LocalDate death){
-        Duration difference = Duration.between(birth.atStartOfDay(), death.atStartOfDay());
-        long diffDays = difference.toDays();
+    public boolean threeToggled() {
+        if (birthDateToggle.isChecked() && deathDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
+            return true;
+        }
+        return false;
     }
 
-    public void calculate(String date, int years, int days, boolean bOrD){
-
-    }
-
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    public void calculate(LocalDate birth, LocalDate death) {
+//        Duration difference = Duration.between(birth.atStartOfDay(), death.atStartOfDay());
+//        long diffDays = difference.toDays();
+//    }
+//
+//    public String parser(String date) {
+//        StringBuilder sb = new StringBuilder(date);
+//        String[] stringArray = date.split("/");
+//        if (stringArray[0].length() == 1) {
+//            sb.insert(0, "0");
+//        }
+//        //String parseDate = String.join("/", stringArray);
+//        for (String s : stringArray){
+//            sb.append(s);
+//        }
+//        String parseDate = sb.toString();
+//        return parseDate;
+//    }
 }
 
