@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DeathCalculator.iml" filepath="$PROJECT_DIR$/DeathCalculator.iml" />
+      <module fileurl="file://C:\Users\kylemccaw15\Documents\DeathCalculator\DeathCalculator.iml" filepath="C:\Users\kylemccaw15\Documents\DeathCalculator\DeathCalculator.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\kylemccaw15\Documents\DeathCalculator\app\app.iml" filepath="C:\Users\kylemccaw15\Documents\DeathCalculator\app\app.iml" />
     </modules>
   </component>
 </project>

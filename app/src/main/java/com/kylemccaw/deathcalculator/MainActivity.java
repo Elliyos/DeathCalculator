@@ -80,24 +80,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        calcMissing.setOnClickListener(new OnClickListener() {
-//            @RequiresApi(api = Build.VERSION_CODES.O)
-//            @Override
-//            public void onClick(View view) {
-//                if (birthDateToggle.isChecked() && deathDateToggle.isChecked()) {
-//                    // calculate lifeLength
-//                    birth = LocalDate.parse(parser((String) birthDate.getText()));
-//                    death = LocalDate.parse(parser((String) deathDate.getText()));
-//                    double yearLong = Math.floor(Duration.between(birth, death).toDays());
-//                    years.setText((int) (yearLong / 365));
-//                    days.setText((int) Math.floor(Duration.between(birth, death).toDays()));
-//                } else if (birthDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
-//                    // calculate deathDate
-//                } else if (deathDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
-//                    // calculate birthDate
-//                }
-//            }
-//        });
+        calcMissing.setOnClickListener(new OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View view) {
+                if (birthDateToggle.isChecked() && deathDateToggle.isChecked()) {
+                    // calculate lifeLength
+                    birth = parser((String) birthDate.getText());
+                    death = parser((String) deathDate.getText());
+                    double yearLong = Math.floor(Duration.between(birth, death).toDays());
+                    years.setText((int) (yearLong / 365));
+                    days.setText((int) Math.floor(Duration.between(birth, death).toDays()));
+                } else if (birthDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
+                    // calculate deathDate
+                } else if (deathDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
+                    // calculate birthDate
+                }
+            }
+        });
     }
 
 
@@ -188,24 +188,30 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.O)
-//    public void calculate(LocalDate birth, LocalDate death) {
-//        Duration difference = Duration.between(birth.atStartOfDay(), death.atStartOfDay());
-//        long diffDays = difference.toDays();
-//    }
-//
-//    public String parser(String date) {
-//        StringBuilder sb = new StringBuilder(date);
-//        String[] stringArray = date.split("/");
-//        if (stringArray[0].length() == 1) {
-//            sb.insert(0, "0");
-//        }
-//        //String parseDate = String.join("/", stringArray);
-//        for (String s : stringArray){
-//            sb.append(s);
-//        }
-//        String parseDate = sb.toString();
-//        return parseDate;
-//    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void calculate(LocalDate birth, LocalDate death) {
+        Duration difference = Duration.between(birth.atStartOfDay(), death.atStartOfDay());
+        long diffDays = difference.toDays();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public LocalDate parser(String date) {
+        String[] stringArray = date.split("/");
+        if (stringArray[0].length() == 1) {
+            StringBuilder sb = new StringBuilder(stringArray[0]);
+            sb.insert(0, "0");
+            stringArray[0] = sb.toString();
+        }
+        int day = Integer.parseInt(stringArray[0]);
+        if (stringArray[1].length() == 1) {
+            StringBuilder sb = new StringBuilder(stringArray[1]);
+            sb.insert(0, "0");
+            stringArray[1] = sb.toString();
+        }
+        int month = Integer.parseInt(stringArray[1];
+        int year = Integer.parseInt(stringArray[2]);
+        LocalDate parsedDate = LocalDate.of(year, month, day);
+        return parsedDate;
+    }
 }
 
