@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     int yearTemp = Integer.parseInt(years.getText().toString());
-                    int dayTemp = (Integer.parseInt(days.getText().toString())) + (yearTemp * 365);
+                    int dayTemp = Integer.parseInt(days.getText().toString()) + (yearTemp * 365);
                     birth = birth.plusDays(dayTemp);
                     deathDate.setText(birth.toString());
                 } else if (deathDateToggle.isChecked() && lifeLengthToggle.isChecked()) {
@@ -226,10 +227,12 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void calculate(LocalDate birth, LocalDate death) {
-        Duration difference = Duration.between(birth.atStartOfDay(), death.atStartOfDay());
-        long diffDays = difference.toDays();
+    public boolean numChecker(){
+        if (!years.getText().toString().contains("[a-zA-Z]+") || !days.getText().toString().contains("[a-zA-Z]+")){
+            toggleDialog("Letters?!", "Your life length fields contain letters! Remove them!");
+            return false;
+        }
+        return true;
     }
 }
 
